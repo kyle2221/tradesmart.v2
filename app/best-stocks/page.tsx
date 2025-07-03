@@ -23,8 +23,8 @@ import {
   Target
 } from "lucide-react";
 import Link from "next/link";
-import { MarketHeatmap } from "@/components/market-heatmap";
-import { TradingChart } from "@/components/trading-chart";
+import { MarketDashboard } from "@/components/market-dashboard";
+import { RealTimeCharts } from "@/components/real-time-charts";
 
 interface StockPick {
   symbol: string;
@@ -247,14 +247,14 @@ export default function BestStocksPage() {
 
   const StockCard = ({ stock }: { stock: StockPick }) => (
     <Card 
-      className="border-0 shadow-lg bg-black/40 backdrop-blur-sm text-white hover:shadow-xl transition-all duration-300 cursor-pointer"
+      className="border-gray-800 bg-black/50 backdrop-blur-sm glass-effect hover:bg-black/70 transition-all duration-300 cursor-pointer group"
       onClick={() => setSelectedStock(stock)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div>
             <CardTitle className="text-lg text-white">{stock.symbol}</CardTitle>
-            <CardDescription className="text-sm text-gray-300">{stock.name}</CardDescription>
+            <CardDescription className="text-sm text-gray-400">{stock.name}</CardDescription>
           </div>
           <div className="flex items-center space-x-2">
             {stock.category === 'best' && <Crown className="h-4 w-4 text-yellow-400" />}
@@ -262,6 +262,9 @@ export default function BestStocksPage() {
             <Badge variant={
               stock.category === 'best' ? 'default' : 
               stock.category === 'cheap' ? 'secondary' : 'destructive'
+            } className={
+              stock.category === 'best' ? 'bg-green-600 hover:bg-green-700' : 
+              stock.category === 'cheap' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700'
             }>
               {stock.category.toUpperCase()}
             </Badge>
@@ -282,7 +285,7 @@ export default function BestStocksPage() {
           <div className="text-right">
             <div className="text-sm text-gray-400">AI Score</div>
             <div className="flex items-center space-x-2">
-              <Progress value={stock.aiScore} className="w-16" />
+              <Progress value={stock.aiScore} className="w-16 bg-gray-800" />
               <span className="text-sm font-medium text-white">{stock.aiScore.toFixed(0)}</span>
             </div>
           </div>
@@ -302,7 +305,10 @@ export default function BestStocksPage() {
             <Badge variant={
               stock.riskLevel === 'LOW' ? 'default' : 
               stock.riskLevel === 'MEDIUM' ? 'secondary' : 'destructive'
-            } className="text-xs">
+            } className={`text-xs ${
+              stock.riskLevel === 'LOW' ? 'bg-green-600' : 
+              stock.riskLevel === 'MEDIUM' ? 'bg-yellow-600' : 'bg-red-600'
+            }`}>
               {stock.riskLevel}
             </Badge>
           </div>
@@ -312,12 +318,12 @@ export default function BestStocksPage() {
           </div>
         </div>
 
-        <div className="pt-2 border-t border-white/20">
-          <p className="text-sm text-gray-300">{stock.reason}</p>
+        <div className="pt-2 border-t border-gray-700">
+          <p className="text-sm text-gray-400">{stock.reason}</p>
         </div>
 
         <Link href={`/future-buy?symbol=${stock.symbol}`}>
-          <Button className="w-full bg-blue-600 hover:bg-blue-700" variant="outline">
+          <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-black font-semibold group-hover:animate-glow">
             <BarChart3 className="mr-2 h-4 w-4" />
             Detailed Analysis
           </Button>
@@ -327,34 +333,39 @@ export default function BestStocksPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="border-b bg-black/20 backdrop-blur-sm">
+      <header className="border-b border-gray-800 bg-black/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               </Link>
               <div className="flex items-center space-x-2">
-                <Globe className="h-8 w-8 text-blue-400" />
+                <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <Globe className="h-6 w-6 text-black" />
+                </div>
                 <h1 className="text-2xl font-bold text-white">Global Market Intelligence</h1>
+                <div className="px-2 py-1 bg-green-500/20 rounded text-xs text-green-400 border border-green-500/30 animate-pulse">
+                  LIVE
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="text-white border-white/30">
-                <Activity className="h-3 w-3 mr-1" />
+              <Badge variant="outline" className="text-cyan-400 border-cyan-500/30 bg-cyan-500/10">
+                <Activity className="h-3 w-3 mr-1 animate-pulse" />
                 Last updated: {lastUpdated.toLocaleTimeString()}
               </Badge>
-              <Button onClick={loadGlobalPicks} disabled={loading} variant="outline" className="text-white border-white/30 hover:bg-white/10">
+              <Button onClick={loadGlobalPicks} disabled={loading} variant="outline" className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800">
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Link href="/future-buy">
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-black font-semibold">
                   <Target className="h-4 w-4 mr-2" />
                   AI Analysis
                 </Button>
@@ -370,33 +381,33 @@ export default function BestStocksPage() {
           <h2 className="text-4xl font-bold text-white mb-4">
             AI-Curated Global Investment Picks
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
             Our AI analyzes thousands of global securities to identify the best performing, 
             most undervalued, and worst performing investments across stocks, ETFs, and bonds.
           </p>
         </div>
 
-        {/* Market Heatmap */}
+        {/* Market Dashboard */}
         <div className="mb-8">
-          <MarketHeatmap />
+          <MarketDashboard />
         </div>
 
         {loading ? (
-          <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+          <Card className="border-gray-800 bg-black/50 backdrop-blur-sm glass-effect">
             <CardContent className="py-12">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-full mb-4">
-                  <Globe className="h-8 w-8 text-blue-400 animate-pulse" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-cyan-500/20 rounded-full mb-4 animate-pulse">
+                  <Globe className="h-8 w-8 text-cyan-400" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Analyzing Global Markets</h3>
-                <p className="text-gray-300 mb-4">
+                <h3 className="text-lg font-semibold mb-2 text-white">Analyzing Global Markets</h3>
+                <p className="text-gray-400 mb-4">
                   AI is scanning thousands of securities across global markets...
                 </p>
-                <Progress value={66} className="w-64 mx-auto" />
-                <div className="mt-4 space-y-2 text-sm text-gray-400">
-                  <div>✓ Scanning US markets (NYSE, NASDAQ)</div>
-                  <div>✓ Analyzing European exchanges</div>
-                  <div className="animate-pulse">⏳ Processing Asian markets...</div>
+                <Progress value={66} className="w-64 mx-auto bg-gray-800" />
+                <div className="mt-4 space-y-2 text-sm text-gray-500">
+                  <div className="text-green-400">✓ Scanning US markets (NYSE, NASDAQ)</div>
+                  <div className="text-green-400">✓ Analyzing European exchanges</div>
+                  <div className="animate-pulse text-cyan-400">⏳ Processing Asian markets...</div>
                 </div>
               </div>
             </CardContent>
@@ -406,7 +417,7 @@ export default function BestStocksPage() {
             {/* Selected Stock Chart */}
             {selectedStock && (
               <div className="mb-8">
-                <TradingChart
+                <RealTimeCharts
                   symbol={selectedStock.symbol}
                   data={selectedStock.priceHistory}
                   currentPrice={selectedStock.price}
@@ -417,16 +428,16 @@ export default function BestStocksPage() {
             )}
 
             <Tabs defaultValue="stocks" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3 bg-black/40">
-                <TabsTrigger value="stocks" className="flex items-center space-x-2 text-white data-[state=active]:bg-blue-600">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 border border-gray-700">
+                <TabsTrigger value="stocks" className="flex items-center space-x-2 text-gray-300 data-[state=active]:bg-cyan-600 data-[state=active]:text-black">
                   <TrendingUp className="h-4 w-4" />
                   <span>Stocks</span>
                 </TabsTrigger>
-                <TabsTrigger value="etfs" className="flex items-center space-x-2 text-white data-[state=active]:bg-blue-600">
+                <TabsTrigger value="etfs" className="flex items-center space-x-2 text-gray-300 data-[state=active]:bg-cyan-600 data-[state=active]:text-black">
                   <BarChart3 className="h-4 w-4" />
                   <span>ETFs</span>
                 </TabsTrigger>
-                <TabsTrigger value="bonds" className="flex items-center space-x-2 text-white data-[state=active]:bg-blue-600">
+                <TabsTrigger value="bonds" className="flex items-center space-x-2 text-gray-300 data-[state=active]:bg-cyan-600 data-[state=active]:text-black">
                   <Shield className="h-4 w-4" />
                   <span>Bonds</span>
                 </TabsTrigger>

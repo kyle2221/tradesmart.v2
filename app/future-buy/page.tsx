@@ -27,9 +27,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { AIAnalysisResult } from "@/components/ai-analysis-result";
-import { TradingChart } from "@/components/trading-chart";
+import { RealTimeCharts } from "@/components/real-time-charts";
 import { RiskAssessment } from "@/components/risk-assessment";
-import { MarketHeatmap } from "@/components/market-heatmap";
+import { MarketDashboard } from "@/components/market-dashboard";
 import { Watchlist } from "@/components/watchlist";
 import { MarketNews } from "@/components/market-news";
 
@@ -174,31 +174,37 @@ export default function FutureBuyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="border-b bg-black/20 backdrop-blur-sm">
+      <header className="border-b border-gray-800 bg-black/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               </Link>
               <div className="flex items-center space-x-2">
-                <Target className="h-8 w-8 text-blue-400" />
+                <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <Target className="h-6 w-6 text-black" />
+                </div>
                 <h1 className="text-2xl font-bold text-white">AI Trading Terminal</h1>
+                <div className="px-2 py-1 bg-green-500/20 rounded text-xs text-green-400 border border-green-500/30 animate-pulse">
+                  LIVE
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="text-white border-white/30">
-                <Activity className="h-3 w-3 mr-1" />
-                Live Market Data
+              <Badge variant="outline" className="text-cyan-400 border-cyan-500/30 bg-cyan-500/10">
+                <Activity className="h-3 w-3 mr-1 animate-pulse" />
+                Real-time Data
               </Badge>
               <Link href="/best-stocks">
-                <Button variant="outline" className="text-white border-white/30 hover:bg-white/10">
-                  Best Stocks Global
+                <Button variant="outline" className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-800">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Global Markets
                 </Button>
               </Link>
             </div>
@@ -217,13 +223,13 @@ export default function FutureBuyPage() {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             {/* Search Section */}
-            <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+            <Card className="border-gray-800 bg-black/50 backdrop-blur-sm glass-effect">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Brain className="h-6 w-6 text-blue-400" />
-                  <span>AI Investment Analysis</span>
+                  <Brain className="h-6 w-6 text-cyan-400" />
+                  <span className="text-white">AI Investment Analysis</span>
                 </CardTitle>
-                <CardDescription className="text-gray-300">
+                <CardDescription className="text-gray-400">
                   Enter a stock symbol, ETF, or bond to get detailed AI-powered investment analysis and future predictions
                 </CardDescription>
               </CardHeader>
@@ -237,14 +243,14 @@ export default function FutureBuyPage() {
                       value={symbol}
                       onChange={(e) => setSymbol(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && analyzeStock()}
-                      className="mt-1 bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                      className="mt-1 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan-500"
                     />
                   </div>
                   <div className="flex items-end">
                     <Button 
                       onClick={analyzeStock} 
                       disabled={loading || !symbol.trim()}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-black font-semibold animate-glow"
                     >
                       {loading ? (
                         <>
@@ -269,7 +275,7 @@ export default function FutureBuyPage() {
                       <Badge 
                         key={ticker}
                         variant="outline" 
-                        className="cursor-pointer hover:bg-blue-500/20 border-white/30 text-white"
+                        className="cursor-pointer hover:bg-cyan-500/20 border-gray-600 text-gray-300 hover:text-white hover:border-cyan-500"
                         onClick={() => setSymbol(ticker)}
                       >
                         {ticker}
@@ -280,26 +286,26 @@ export default function FutureBuyPage() {
               </CardContent>
             </Card>
 
-            {/* Market Heatmap */}
-            <MarketHeatmap />
+            {/* Market Dashboard */}
+            <MarketDashboard />
 
             {/* Loading State */}
             {loading && (
-              <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+              <Card className="border-gray-800 bg-black/50 backdrop-blur-sm glass-effect">
                 <CardContent className="py-8">
                   <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-full mb-4">
-                      <Brain className="h-8 w-8 text-blue-400 animate-pulse" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-cyan-500/20 rounded-full mb-4 animate-pulse">
+                      <Brain className="h-8 w-8 text-cyan-400" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">AI Analysis in Progress</h3>
-                    <p className="text-gray-300 mb-4">
+                    <h3 className="text-lg font-semibold mb-2 text-white">AI Analysis in Progress</h3>
+                    <p className="text-gray-400 mb-4">
                       Our AI is analyzing market data, technical indicators, and fundamental metrics...
                     </p>
-                    <Progress value={33} className="w-64 mx-auto" />
-                    <div className="mt-4 space-y-2 text-sm text-gray-400">
-                      <div>✓ Fetching real-time market data</div>
-                      <div>✓ Analyzing technical indicators</div>
-                      <div className="animate-pulse">⏳ Processing AI predictions...</div>
+                    <Progress value={33} className="w-64 mx-auto bg-gray-800" />
+                    <div className="mt-4 space-y-2 text-sm text-gray-500">
+                      <div className="text-green-400">✓ Fetching real-time market data</div>
+                      <div className="text-green-400">✓ Analyzing technical indicators</div>
+                      <div className="animate-pulse text-cyan-400">⏳ Processing AI predictions...</div>
                     </div>
                   </div>
                 </CardContent>
@@ -309,8 +315,8 @@ export default function FutureBuyPage() {
             {/* Analysis Results */}
             {analysis && !loading && (
               <div className="space-y-6">
-                {/* Trading Chart */}
-                <TradingChart
+                {/* Real-Time Charts */}
+                <RealTimeCharts
                   symbol={analysis.symbol}
                   data={analysis.priceHistory}
                   currentPrice={analysis.currentPrice}
@@ -319,25 +325,29 @@ export default function FutureBuyPage() {
                 />
 
                 {/* Main Analysis Card */}
-                <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+                <Card className="border-gray-800 bg-black/50 backdrop-blur-sm glass-effect">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-2xl">{analysis.symbol}</CardTitle>
-                        <CardDescription className="text-lg text-gray-300">{analysis.name}</CardDescription>
+                        <CardTitle className="text-2xl text-white">{analysis.symbol}</CardTitle>
+                        <CardDescription className="text-lg text-gray-400">{analysis.name}</CardDescription>
                       </div>
                       <div className="text-right">
-                        <div className="text-3xl font-bold">${analysis.currentPrice.toFixed(2)}</div>
+                        <div className="text-3xl font-bold text-white">${analysis.currentPrice.toFixed(2)}</div>
                         <div className="flex items-center space-x-2 mt-1">
                           <Badge 
                             variant={analysis.prediction === 'BUY' ? 'default' : analysis.prediction === 'HOLD' ? 'secondary' : 'destructive'}
-                            className="text-sm"
+                            className={`text-sm ${
+                              analysis.prediction === 'BUY' ? 'bg-green-600 hover:bg-green-700' :
+                              analysis.prediction === 'HOLD' ? 'bg-yellow-600 hover:bg-yellow-700' :
+                              'bg-red-600 hover:bg-red-700'
+                            }`}
                           >
                             {analysis.prediction === 'BUY' && <TrendingUp className="h-3 w-3 mr-1" />}
                             {analysis.prediction === 'SELL' && <TrendingDown className="h-3 w-3 mr-1" />}
                             {analysis.prediction}
                           </Badge>
-                          <Badge variant="outline" className="border-white/30 text-white">
+                          <Badge variant="outline" className="border-cyan-500/30 text-cyan-400">
                             {analysis.confidence.toFixed(0)}% Confidence
                           </Badge>
                         </div>
@@ -348,22 +358,22 @@ export default function FutureBuyPage() {
                     <div className="grid md:grid-cols-3 gap-6">
                       <div className="space-y-4">
                         <div>
-                          <Label className="text-sm font-medium text-gray-300">AI Score</Label>
+                          <Label className="text-sm font-medium text-gray-400">AI Score</Label>
                           <div className="flex items-center space-x-2 mt-1">
-                            <Progress value={analysis.aiScore} className="flex-1" />
-                            <span className="text-sm font-medium">{analysis.aiScore.toFixed(0)}/100</span>
+                            <Progress value={analysis.aiScore} className="flex-1 bg-gray-800" />
+                            <span className="text-sm font-medium text-white">{analysis.aiScore.toFixed(0)}/100</span>
                           </div>
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-gray-300">Target Price</Label>
+                          <Label className="text-sm font-medium text-gray-400">Target Price</Label>
                           <div className="text-2xl font-bold text-green-400">${analysis.targetPrice.toFixed(2)}</div>
-                          <div className="text-sm text-gray-400">{analysis.timeframe}</div>
+                          <div className="text-sm text-gray-500">{analysis.timeframe}</div>
                         </div>
                       </div>
                       
                       <div className="space-y-4">
                         <div>
-                          <Label className="text-sm font-medium text-gray-300">Risk Level</Label>
+                          <Label className="text-sm font-medium text-gray-400">Risk Level</Label>
                           <div className="flex items-center space-x-2 mt-1">
                             <Shield className={`h-4 w-4 ${
                               analysis.riskLevel === 'LOW' ? 'text-green-400' : 
@@ -372,14 +382,17 @@ export default function FutureBuyPage() {
                             <Badge variant={
                               analysis.riskLevel === 'LOW' ? 'default' : 
                               analysis.riskLevel === 'MEDIUM' ? 'secondary' : 'destructive'
+                            } className={
+                              analysis.riskLevel === 'LOW' ? 'bg-green-600' : 
+                              analysis.riskLevel === 'MEDIUM' ? 'bg-yellow-600' : 'bg-red-600'
                             }>
                               {analysis.riskLevel}
                             </Badge>
                           </div>
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-gray-300">Potential Return</Label>
-                          <div className="text-2xl font-bold text-blue-400">
+                          <Label className="text-sm font-medium text-gray-400">Potential Return</Label>
+                          <div className="text-2xl font-bold text-cyan-400">
                             {((analysis.targetPrice - analysis.currentPrice) / analysis.currentPrice * 100).toFixed(1)}%
                           </div>
                         </div>
@@ -387,12 +400,12 @@ export default function FutureBuyPage() {
 
                       <div className="space-y-4">
                         <div>
-                          <Label className="text-sm font-medium text-gray-300">Market Cap</Label>
-                          <div className="text-lg font-semibold">{analysis.fundamentals.marketCap}</div>
+                          <Label className="text-sm font-medium text-gray-400">Market Cap</Label>
+                          <div className="text-lg font-semibold text-white">{analysis.fundamentals.marketCap}</div>
                         </div>
                         <div>
-                          <Label className="text-sm font-medium text-gray-300">P/E Ratio</Label>
-                          <div className="text-lg font-semibold">{analysis.fundamentals.peRatio.toFixed(1)}</div>
+                          <Label className="text-sm font-medium text-gray-400">P/E Ratio</Label>
+                          <div className="text-lg font-semibold text-white">{analysis.fundamentals.peRatio.toFixed(1)}</div>
                         </div>
                       </div>
                     </div>
@@ -401,10 +414,10 @@ export default function FutureBuyPage() {
 
                 {/* Detailed Analysis Tabs */}
                 <Tabs defaultValue="analysis" className="space-y-4">
-                  <TabsList className="grid w-full grid-cols-3 bg-black/40">
-                    <TabsTrigger value="analysis" className="text-white data-[state=active]:bg-blue-600">AI Analysis</TabsTrigger>
-                    <TabsTrigger value="technical" className="text-white data-[state=active]:bg-blue-600">Technical</TabsTrigger>
-                    <TabsTrigger value="risk" className="text-white data-[state=active]:bg-blue-600">Risk Assessment</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 border border-gray-700">
+                    <TabsTrigger value="analysis" className="text-gray-300 data-[state=active]:bg-cyan-600 data-[state=active]:text-black">AI Analysis</TabsTrigger>
+                    <TabsTrigger value="technical" className="text-gray-300 data-[state=active]:bg-cyan-600 data-[state=active]:text-black">Technical</TabsTrigger>
+                    <TabsTrigger value="risk" className="text-gray-300 data-[state=active]:bg-cyan-600 data-[state=active]:text-black">Risk Assessment</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="analysis">
@@ -412,9 +425,9 @@ export default function FutureBuyPage() {
                   </TabsContent>
 
                   <TabsContent value="technical">
-                    <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+                    <Card className="border-gray-800 bg-black/50 backdrop-blur-sm glass-effect">
                       <CardHeader>
-                        <CardTitle className="flex items-center space-x-2">
+                        <CardTitle className="flex items-center space-x-2 text-white">
                           <BarChart3 className="h-5 w-5" />
                           <span>Technical Analysis</span>
                         </CardTitle>
@@ -423,25 +436,26 @@ export default function FutureBuyPage() {
                         <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                              <span>RSI (14)</span>
+                              <span className="text-gray-400">RSI (14)</span>
                               <div className="flex items-center space-x-2">
-                                <Progress value={analysis.technicalIndicators.rsi} className="w-20" />
-                                <span className="text-sm font-medium">{analysis.technicalIndicators.rsi.toFixed(0)}</span>
+                                <Progress value={analysis.technicalIndicators.rsi} className="w-20 bg-gray-800" />
+                                <span className="text-sm font-medium text-white">{analysis.technicalIndicators.rsi.toFixed(0)}</span>
                               </div>
                             </div>
                             <div className="flex justify-between">
-                              <span>MACD</span>
-                              <Badge variant={analysis.technicalIndicators.macd === 'Bullish' ? 'default' : 'destructive'}>
+                              <span className="text-gray-400">MACD</span>
+                              <Badge variant={analysis.technicalIndicators.macd === 'Bullish' ? 'default' : 'destructive'} 
+                                     className={analysis.technicalIndicators.macd === 'Bullish' ? 'bg-green-600' : 'bg-red-600'}>
                                 {analysis.technicalIndicators.macd}
                               </Badge>
                             </div>
                             <div className="flex justify-between">
-                              <span>Moving Average</span>
-                              <span className="text-sm">{analysis.technicalIndicators.movingAverage}</span>
+                              <span className="text-gray-400">Moving Average</span>
+                              <span className="text-sm text-white">{analysis.technicalIndicators.movingAverage}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span>Volume</span>
-                              <span className="text-sm">{analysis.technicalIndicators.volume}</span>
+                              <span className="text-gray-400">Volume</span>
+                              <span className="text-sm text-white">{analysis.technicalIndicators.volume}</span>
                             </div>
                           </div>
                         </div>

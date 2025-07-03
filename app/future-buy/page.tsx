@@ -22,12 +22,16 @@ import {
   DollarSign,
   Calendar,
   Zap,
-  ArrowLeft
+  ArrowLeft,
+  Activity
 } from "lucide-react";
 import Link from "next/link";
 import { AIAnalysisResult } from "@/components/ai-analysis-result";
-import { PredictionChart } from "@/components/prediction-chart";
+import { TradingChart } from "@/components/trading-chart";
 import { RiskAssessment } from "@/components/risk-assessment";
+import { MarketHeatmap } from "@/components/market-heatmap";
+import { Watchlist } from "@/components/watchlist";
+import { MarketNews } from "@/components/market-news";
 
 interface AnalysisResult {
   symbol: string;
@@ -53,7 +57,7 @@ interface AnalysisResult {
     dividend: number;
     growth: number;
   };
-  priceHistory: Array<{ date: string; price: number }>;
+  priceHistory: Array<{ time: string; open: number; high: number; low: number; close: number; volume: number }>;
 }
 
 export default function FutureBuyPage() {
@@ -149,300 +153,310 @@ export default function FutureBuyPage() {
     for (let i = 30; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      price += (Math.random() - 0.5) * 10;
+      const open = price;
+      const change = (Math.random() - 0.5) * 10;
+      const close = Math.max(open + change, 10);
+      const high = Math.max(open, close) + Math.random() * 5;
+      const low = Math.min(open, close) - Math.random() * 5;
+      const volume = Math.random() * 10000000 + 1000000;
+      
       history.push({
-        date: date.toISOString().split('T')[0],
-        price: Math.max(price, 10)
+        time: date.toISOString().split('T')[0],
+        open,
+        high,
+        low,
+        close,
+        volume
       });
+      price = close;
     }
     return history;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
+      <header className="border-b bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link href="/">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               </Link>
               <div className="flex items-center space-x-2">
-                <Target className="h-8 w-8 text-blue-600" />
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Future Buy Analysis</h1>
+                <Target className="h-8 w-8 text-blue-400" />
+                <h1 className="text-2xl font-bold text-white">AI Trading Terminal</h1>
               </div>
             </div>
-            <Link href="/best-stocks">
-              <Button variant="outline">Best Stocks Global</Button>
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Badge variant="outline" className="text-white border-white/30">
+                <Activity className="h-3 w-3 mr-1" />
+                Live Market Data
+              </Badge>
+              <Link href="/best-stocks">
+                <Button variant="outline" className="text-white border-white/30 hover:bg-white/10">
+                  Best Stocks Global
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Search Section */}
-        <Card className="mb-8 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Brain className="h-6 w-6 text-blue-600" />
-              <span>AI Investment Analysis</span>
-            </CardTitle>
-            <CardDescription>
-              Enter a stock symbol, ETF, or bond to get detailed AI-powered investment analysis and future predictions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <Label htmlFor="symbol">Stock Symbol / Ticker</Label>
-                <Input
-                  id="symbol"
-                  placeholder="e.g., AAPL, GOOGL, SPY, QQQ"
-                  value={symbol}
-                  onChange={(e) => setSymbol(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && analyzeStock()}
-                  className="mt-1"
-                />
-              </div>
-              <div className="flex items-end">
-                <Button 
-                  onClick={analyzeStock} 
-                  disabled={loading || !symbol.trim()}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  {loading ? (
-                    <>
-                      <Zap className="mr-2 h-4 w-4 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Brain className="mr-2 h-4 w-4" />
-                      Analyze
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-            
-            {/* Popular Symbols */}
-            <div className="mt-4">
-              <Label className="text-sm text-gray-600 dark:text-gray-400">Popular Symbols:</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'SPY', 'QQQ'].map((ticker) => (
-                  <Badge 
-                    key={ticker}
-                    variant="outline" 
-                    className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900"
-                    onClick={() => setSymbol(ticker)}
-                  >
-                    {ticker}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid lg:grid-cols-4 gap-6">
+          {/* Left Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            <Watchlist />
+            <MarketNews />
+          </div>
 
-        {/* Loading State */}
-        {loading && (
-          <Card className="mb-8 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-            <CardContent className="py-8">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
-                  <Brain className="h-8 w-8 text-blue-600 animate-pulse" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">AI Analysis in Progress</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Our AI is analyzing market data, technical indicators, and fundamental metrics...
-                </p>
-                <Progress value={33} className="w-64 mx-auto" />
-                <div className="mt-4 space-y-2 text-sm text-gray-500">
-                  <div>✓ Fetching real-time market data</div>
-                  <div>✓ Analyzing technical indicators</div>
-                  <div className="animate-pulse">⏳ Processing AI predictions...</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Analysis Results */}
-        {analysis && !loading && (
-          <div className="space-y-6">
-            {/* Main Analysis Card */}
-            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          {/* Main Content */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Search Section */}
+            <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">{analysis.symbol}</CardTitle>
-                    <CardDescription className="text-lg">{analysis.name}</CardDescription>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold">${analysis.currentPrice.toFixed(2)}</div>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge 
-                        variant={analysis.prediction === 'BUY' ? 'default' : analysis.prediction === 'HOLD' ? 'secondary' : 'destructive'}
-                        className="text-sm"
-                      >
-                        {analysis.prediction === 'BUY' && <TrendingUp className="h-3 w-3 mr-1" />}
-                        {analysis.prediction === 'SELL' && <TrendingDown className="h-3 w-3 mr-1" />}
-                        {analysis.prediction}
-                      </Badge>
-                      <Badge variant="outline">{analysis.confidence.toFixed(0)}% Confidence</Badge>
-                    </div>
-                  </div>
-                </div>
+                <CardTitle className="flex items-center space-x-2">
+                  <Brain className="h-6 w-6 text-blue-400" />
+                  <span>AI Investment Analysis</span>
+                </CardTitle>
+                <CardDescription className="text-gray-300">
+                  Enter a stock symbol, ETF, or bond to get detailed AI-powered investment analysis and future predictions
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium">AI Score</Label>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Progress value={analysis.aiScore} className="flex-1" />
-                        <span className="text-sm font-medium">{analysis.aiScore.toFixed(0)}/100</span>
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Target Price</Label>
-                      <div className="text-2xl font-bold text-green-600">${analysis.targetPrice.toFixed(2)}</div>
-                      <div className="text-sm text-gray-500">{analysis.timeframe}</div>
-                    </div>
+                <div className="flex space-x-4">
+                  <div className="flex-1">
+                    <Label htmlFor="symbol" className="text-gray-300">Stock Symbol / Ticker</Label>
+                    <Input
+                      id="symbol"
+                      placeholder="e.g., AAPL, GOOGL, SPY, QQQ"
+                      value={symbol}
+                      onChange={(e) => setSymbol(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && analyzeStock()}
+                      className="mt-1 bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                    />
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium">Risk Level</Label>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Shield className={`h-4 w-4 ${
-                          analysis.riskLevel === 'LOW' ? 'text-green-500' : 
-                          analysis.riskLevel === 'MEDIUM' ? 'text-yellow-500' : 'text-red-500'
-                        }`} />
-                        <Badge variant={
-                          analysis.riskLevel === 'LOW' ? 'default' : 
-                          analysis.riskLevel === 'MEDIUM' ? 'secondary' : 'destructive'
-                        }>
-                          {analysis.riskLevel}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Potential Return</Label>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {((analysis.targetPrice - analysis.currentPrice) / analysis.currentPrice * 100).toFixed(1)}%
-                      </div>
-                    </div>
+                  <div className="flex items-end">
+                    <Button 
+                      onClick={analyzeStock} 
+                      disabled={loading || !symbol.trim()}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    >
+                      {loading ? (
+                        <>
+                          <Zap className="mr-2 h-4 w-4 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="mr-2 h-4 w-4" />
+                          Analyze
+                        </>
+                      )}
+                    </Button>
                   </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium">Market Cap</Label>
-                      <div className="text-lg font-semibold">{analysis.fundamentals.marketCap}</div>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">P/E Ratio</Label>
-                      <div className="text-lg font-semibold">{analysis.fundamentals.peRatio.toFixed(1)}</div>
-                    </div>
+                </div>
+                
+                {/* Popular Symbols */}
+                <div className="mt-4">
+                  <Label className="text-sm text-gray-400">Popular Symbols:</Label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'SPY', 'QQQ'].map((ticker) => (
+                      <Badge 
+                        key={ticker}
+                        variant="outline" 
+                        className="cursor-pointer hover:bg-blue-500/20 border-white/30 text-white"
+                        onClick={() => setSymbol(ticker)}
+                      >
+                        {ticker}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Detailed Analysis Tabs */}
-            <Tabs defaultValue="analysis" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="analysis">AI Analysis</TabsTrigger>
-                <TabsTrigger value="technical">Technical</TabsTrigger>
-                <TabsTrigger value="fundamental">Fundamental</TabsTrigger>
-                <TabsTrigger value="risk">Risk Assessment</TabsTrigger>
-              </TabsList>
+            {/* Market Heatmap */}
+            <MarketHeatmap />
 
-              <TabsContent value="analysis">
-                <AIAnalysisResult analysis={analysis} />
-              </TabsContent>
+            {/* Loading State */}
+            {loading && (
+              <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+                <CardContent className="py-8">
+                  <div className="text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-full mb-4">
+                      <Brain className="h-8 w-8 text-blue-400 animate-pulse" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">AI Analysis in Progress</h3>
+                    <p className="text-gray-300 mb-4">
+                      Our AI is analyzing market data, technical indicators, and fundamental metrics...
+                    </p>
+                    <Progress value={33} className="w-64 mx-auto" />
+                    <div className="mt-4 space-y-2 text-sm text-gray-400">
+                      <div>✓ Fetching real-time market data</div>
+                      <div>✓ Analyzing technical indicators</div>
+                      <div className="animate-pulse">⏳ Processing AI predictions...</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              <TabsContent value="technical">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <BarChart3 className="h-5 w-5" />
-                        <span>Technical Indicators</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span>RSI (14)</span>
-                        <div className="flex items-center space-x-2">
-                          <Progress value={analysis.technicalIndicators.rsi} className="w-20" />
-                          <span className="text-sm font-medium">{analysis.technicalIndicators.rsi.toFixed(0)}</span>
+            {/* Analysis Results */}
+            {analysis && !loading && (
+              <div className="space-y-6">
+                {/* Trading Chart */}
+                <TradingChart
+                  symbol={analysis.symbol}
+                  data={analysis.priceHistory}
+                  currentPrice={analysis.currentPrice}
+                  change={analysis.currentPrice - analysis.priceHistory[analysis.priceHistory.length - 2]?.close || 0}
+                  changePercent={((analysis.currentPrice - analysis.priceHistory[analysis.priceHistory.length - 2]?.close || 0) / analysis.currentPrice) * 100}
+                />
+
+                {/* Main Analysis Card */}
+                <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-2xl">{analysis.symbol}</CardTitle>
+                        <CardDescription className="text-lg text-gray-300">{analysis.name}</CardDescription>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-3xl font-bold">${analysis.currentPrice.toFixed(2)}</div>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Badge 
+                            variant={analysis.prediction === 'BUY' ? 'default' : analysis.prediction === 'HOLD' ? 'secondary' : 'destructive'}
+                            className="text-sm"
+                          >
+                            {analysis.prediction === 'BUY' && <TrendingUp className="h-3 w-3 mr-1" />}
+                            {analysis.prediction === 'SELL' && <TrendingDown className="h-3 w-3 mr-1" />}
+                            {analysis.prediction}
+                          </Badge>
+                          <Badge variant="outline" className="border-white/30 text-white">
+                            {analysis.confidence.toFixed(0)}% Confidence
+                          </Badge>
                         </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>MACD</span>
-                        <Badge variant={analysis.technicalIndicators.macd === 'Bullish' ? 'default' : 'destructive'}>
-                          {analysis.technicalIndicators.macd}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Moving Average</span>
-                        <span className="text-sm">{analysis.technicalIndicators.movingAverage}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Volume</span>
-                        <span className="text-sm">{analysis.technicalIndicators.volume}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <PredictionChart data={analysis.priceHistory} targetPrice={analysis.targetPrice} />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="fundamental">
-                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <DollarSign className="h-5 w-5" />
-                      <span>Fundamental Analysis</span>
-                    </CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">{analysis.fundamentals.peRatio.toFixed(1)}</div>
-                        <div className="text-sm text-gray-500">P/E Ratio</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">{analysis.fundamentals.marketCap}</div>
-                        <div className="text-sm text-gray-500">Market Cap</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600">{analysis.fundamentals.dividend.toFixed(2)}%</div>
-                        <div className="text-sm text-gray-500">Dividend Yield</div>
-                      </div>
-                      <div className="text-center">
-                        <div className={`text-2xl font-bold ${analysis.fundamentals.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {analysis.fundamentals.growth >= 0 ? '+' : ''}{analysis.fundamentals.growth.toFixed(1)}%
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-300">AI Score</Label>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Progress value={analysis.aiScore} className="flex-1" />
+                            <span className="text-sm font-medium">{analysis.aiScore.toFixed(0)}/100</span>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500">Growth Rate</div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-300">Target Price</Label>
+                          <div className="text-2xl font-bold text-green-400">${analysis.targetPrice.toFixed(2)}</div>
+                          <div className="text-sm text-gray-400">{analysis.timeframe}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-300">Risk Level</Label>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Shield className={`h-4 w-4 ${
+                              analysis.riskLevel === 'LOW' ? 'text-green-400' : 
+                              analysis.riskLevel === 'MEDIUM' ? 'text-yellow-400' : 'text-red-400'
+                            }`} />
+                            <Badge variant={
+                              analysis.riskLevel === 'LOW' ? 'default' : 
+                              analysis.riskLevel === 'MEDIUM' ? 'secondary' : 'destructive'
+                            }>
+                              {analysis.riskLevel}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-300">Potential Return</Label>
+                          <div className="text-2xl font-bold text-blue-400">
+                            {((analysis.targetPrice - analysis.currentPrice) / analysis.currentPrice * 100).toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-300">Market Cap</Label>
+                          <div className="text-lg font-semibold">{analysis.fundamentals.marketCap}</div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-300">P/E Ratio</Label>
+                          <div className="text-lg font-semibold">{analysis.fundamentals.peRatio.toFixed(1)}</div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
 
-              <TabsContent value="risk">
-                <RiskAssessment analysis={analysis} />
-              </TabsContent>
-            </Tabs>
+                {/* Detailed Analysis Tabs */}
+                <Tabs defaultValue="analysis" className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-3 bg-black/40">
+                    <TabsTrigger value="analysis" className="text-white data-[state=active]:bg-blue-600">AI Analysis</TabsTrigger>
+                    <TabsTrigger value="technical" className="text-white data-[state=active]:bg-blue-600">Technical</TabsTrigger>
+                    <TabsTrigger value="risk" className="text-white data-[state=active]:bg-blue-600">Risk Assessment</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="analysis">
+                    <AIAnalysisResult analysis={analysis} />
+                  </TabsContent>
+
+                  <TabsContent value="technical">
+                    <Card className="border-0 shadow-2xl bg-black/40 backdrop-blur-sm text-white">
+                      <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                          <BarChart3 className="h-5 w-5" />
+                          <span>Technical Analysis</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <span>RSI (14)</span>
+                              <div className="flex items-center space-x-2">
+                                <Progress value={analysis.technicalIndicators.rsi} className="w-20" />
+                                <span className="text-sm font-medium">{analysis.technicalIndicators.rsi.toFixed(0)}</span>
+                              </div>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>MACD</span>
+                              <Badge variant={analysis.technicalIndicators.macd === 'Bullish' ? 'default' : 'destructive'}>
+                                {analysis.technicalIndicators.macd}
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Moving Average</span>
+                              <span className="text-sm">{analysis.technicalIndicators.movingAverage}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Volume</span>
+                              <span className="text-sm">{analysis.technicalIndicators.volume}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="risk">
+                    <RiskAssessment analysis={analysis} />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
